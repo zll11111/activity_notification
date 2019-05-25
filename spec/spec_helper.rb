@@ -27,8 +27,14 @@ SimpleCov.start('rails') do
   end
   if ENV['AN_ORM'] == 'mongoid'
     add_filter '/lib/activity_notification/orm/active_record'
+    add_filter '/lib/activity_notification/orm/dynamoid'
+  elsif ENV['AN_ORM'] == 'dynamoid'
+    add_filter '/lib/activity_notification/orm/active_record'
+    add_filter '/lib/activity_notification/orm/mongoid'
+    nocov_token 'except-dynamoid'
   else
     add_filter '/lib/activity_notification/orm/mongoid'
+    add_filter '/lib/activity_notification/orm/dynamoid'
   end
 end
 
@@ -44,7 +50,7 @@ require 'activity_notification'
 
 Dir[Rails.root.join("../../spec/support/**/*.rb")].each { |file| require file }
 
-def clear_database
+def clean_database
   [ActivityNotification::Notification, ActivityNotification::Subscription, Comment, Article, Admin, User].each do |model_class|
     model_class.delete_all
   end
@@ -54,7 +60,7 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.before(:all) do
     FactoryBot.reload
-    clear_database
+    clean_database
   end
   config.include Devise::Test::ControllerHelpers, type: :controller
 end

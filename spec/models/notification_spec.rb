@@ -276,15 +276,21 @@ describe ActivityNotification::Notification, type: :model do
 
         context 'with custom_filter options' do
           it "works with filtered_by_options scope" do
-            if ActivityNotification.config.orm == :active_record
-              notifications = ActivityNotification::Notification.filtered_by_options({ custom_filter: ["notifications.key = ?", @key_1] })
-              expect(notifications.to_a.size).to eq(1)
-              expect(notifications.first).to eq(@notification_1)
-            end
-
             notifications = ActivityNotification::Notification.filtered_by_options({ custom_filter: { key: @key_2 } })
             expect(notifications.to_a.size).to eq(1)
             expect(notifications.first).to eq(@notification_2)
+          end
+
+          it "works with filtered_by_options scope with filter depending on ORM" do
+            options =
+              case ActivityNotification.config.orm
+              when :active_record then { custom_filter: ["notifications.key = ?", @key_1] }
+              when :mongoid       then { custom_filter: { key: {'$eq': @key_1} } }
+              when :dynamoid      then { custom_filter: {'key.begins_with': @key_1} }
+              end
+            notifications = ActivityNotification::Notification.filtered_by_options(options)
+            expect(notifications.to_a.size).to eq(1)
+            expect(notifications.first).to eq(@notification_1)
           end
         end
   

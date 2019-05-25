@@ -7,6 +7,14 @@ if ENV['AN_ORM'] == 'mongoid'
   if Rails.env != 'test'
     Mongoid.load!(File.expand_path("config/mongoid.yml"), :development)
   end
+elsif ENV['AN_ORM'] == 'dynamoid'
+  require 'dynamoid'
+  require 'rails'
+  Dynamoid.configure do |config|
+    config.namespace = "activity_notification_#{Rails.env}"
+    config.endpoint = 'http://localhost:8000'
+    # config.store_datetime_as_string = true
+  end
 end
 
 # Pick the frameworks you want:
@@ -34,3 +42,4 @@ module Dummy
   end
 end
 
+puts "ActivityNotification test parameters: AN_ORM=#{ENV['AN_ORM'] || 'active_record(default)'} AN_TEST_DB=#{ENV['AN_TEST_DB'] || 'sqlite(default)'}"

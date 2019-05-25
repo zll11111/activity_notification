@@ -16,6 +16,7 @@
 /log/
 *~
 *.sqlite3
+shared-local-instance.db
 .project
 
 # Used by dotenv library to load environment variables.
